@@ -1,0 +1,138 @@
+/*#starmap_section{
+    position: relative;
+}   */   
+
+#starmap {
+    display: block;            
+    background-color: black;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: auto;
+}
+
+.star_container {
+    display: block;
+    position: absolute;
+    background-color: black;
+    width: 7px;
+    height: 7px;
+}
+
+.star, .planet {
+    display: block;
+    position: absolute;
+    border-radius: 50%;
+}
+
+.planet_container {
+    display: block;
+    position: absolute;
+    background-color: black;
+    width: 9px;
+    height: 9px;
+}
+
+#solar_infotable_img{
+    display: block;    /*nécessaire pour que le positionnement foncitonne */
+    width: 60%;        /*nécessaire pour que le positionnement (et le dimensionnement) foncitonne */
+    margin: auto;
+}
+
+.button_toggle_modal {
+    border-radius: 50%;            
+    background-image: url("../images/qm.png");
+    background-size: cover;
+    text-decoration: none;
+}
+
+.button_toggle_inline {            
+    width: 20px;
+    height: 20px; 
+    display: inline-block;
+}
+
+#button_map_help {
+    position: absolute;
+    display: block;
+    width: 45px;
+    height: 45px;
+    right: 30px;
+    top: 15px;
+}       
+
+#day_night_icon {
+    position: absolute;
+    display: block;
+    width: 45px;
+    height: 45px;
+    left: 30px;
+    top: 15px;
+    background-size: cover;
+    background-image: url("../images/night.png");
+}
+
+
+
+.alt_az_container{
+    display: block;
+    position: absolute;    
+    overflow: hidden;
+    /*bottom: 0%;*/
+}
+
+#alt_container{
+    left: 25px;     
+}
+
+#az_container{
+    right: 20px;
+}
+
+.alt_az_frame, .alt_az_needle{
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    margin: 0%;
+    padding: 0%;
+    background-size: cover;
+}
+
+#alt_frame{
+    background-image: url("../images/alt_frame.png");    
+    z-index: 10;
+}
+
+#alt_needle{
+    background-image: url("../images/alt_needle.png");     
+    transform-origin: bottom left;
+    z-index: 5;
+}
+
+#az_frame{
+    background-image: url("../images/az_frame.png");    
+    z-index: 5;
+}
+
+#az_needle{
+    background-image: url("../images/az_needle.png");    
+    z-index: 10;
+}
+
+
+
+#search_input, #search_button{
+    display: inline-block;  
+    position: relative;
+}
+
+#search_input{    
+    width: 78%;
+}
+
+#search_button{
+    width: 20%;
+    margin-left: 2%;
+}

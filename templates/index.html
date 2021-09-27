@@ -1,0 +1,306 @@
+{% extends 'template.html' %}
+
+{% block style %}
+
+<!-- Custom CSS -->
+
+<link href="../static/stye/index.css" rel="stylesheet">
+<link href="../static/stye/cities_autocomplete.css" rel="stylesheet">
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<section class="row" id="section1">
+    <div class="col-1 col-lg-2"></div>
+    <div class="col-10 col-lg-8 py-3">
+
+        <h3 class="mt-5 mb-4">
+            Take a tour of the sky from anywhere, at any time, and simply be amazed by the wonders of the stars!
+        </h3>
+
+
+        <div id="container_error_geolocation" class="error_container_initial_hide">
+            <div class="alert alert-danger fade show" role="alert" id="error_geolocation">
+                <b id="error_geolocation_msg"></b>
+            </div>
+        </div>
+
+        <button class="btn btn-warning mb-5" role="button" id="button_geolocation">
+            Check out the starry sky of your current location!
+        </button>
+
+
+
+
+        <h3>or...</h3>
+
+        <p>View from a specific city: </p>
+
+        <div class="autocomplete" id="autocomplete_container">
+            <input type="text" id="input_city" class="form-control" placeholder="Your city name..." />
+        </div>
+
+        <div id="container_error_city" class="error_container_initial_hide">
+            <div class="alert alert-danger fade show mt-3 mb-0" role="alert" id="error_city">
+                <b id="error_city_msg">
+                    Please select a valid city from the available suggestions!
+                </b>
+            </div>
+        </div>
+
+        <button class="btn btn-warning mt-3 mb-5" role="button" id="button_city">
+            Let's have a look!
+        </button>
+
+
+
+
+        <h3>or...</h3>
+
+        <p>Manually choose your longitude and latitude: </p>
+
+        <div class="row mt-2">
+            <div class="col-sm-4 col-lg-3">
+                <label for="input_longitude" class="col-form-label">Longitude: </label>
+            </div>
+            <div class="col-sm-8 col-lg-9">
+                <input type="number" id="input_longitude" class="form-control" step="any" min="-180" max="180" placeholder="Your longitude (between -180&deg; and 180&deg;)">
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-sm-4 col-lg-3">
+                <label for="input_latitude" class="col-form-label">Latitude: </label>
+            </div>
+            <div class="col-sm-8 col-lg-9">
+                <input type="number" id="input_latitude" class="form-control" step="any" min="-90" max="90" placeholder="Your latitude (between -90&deg; and 90&deg;)">
+            </div>
+        </div>
+
+        <div id="container_error_coordinates" class="error_container_initial_hide">
+            <div class="alert alert-danger fade show mt-3 mb-0" role="alert" id="error_coordinates">
+                <b id="error_coordinates_msg">
+                    Please provide a valide longitude and latitude!
+                </b>
+            </div>
+        </div>
+
+        <button class="btn btn-warning mt-3 mb-5" role="button" id="button_coordinates">
+            Let's have a look!
+        </button>
+
+    </div>
+    <div class="col-1 col-lg-2"></div>
+</section>
+
+<div id="desc_section">
+
+    <section id="intro_texts">
+        <div class="row">
+            <div class="col-1 col-lg-2"></div>
+            <div class="col-10 col-lg-8 py-3">
+
+                <h2 class="mt-3">About the Nightsky-500-stars website</h2>
+
+                <p>
+                    Stargazing is one of the most accessible and wonderful activities we can enjoy. Yet it might be
+					difficult to know exactly what we are looking at and to find specific celestial objects, especially
+					for beginner stargazers. This website has one goal in mind : to allow you to focus on the enjoyment
+					of looking at stars without the hassle of feeling lost and trying hard to constantly
+					figure out what are you seeing.
+				</p>
+
+                <p>
+				You can easily look at the current simulated starry sky of your own location by using automatic
+				geolocation, alternatively you can manually choose a city or a coordinate from where to look at the sky.
+				Once your observation location is selected, you can look around the sky above by using a simple and
+				intuitive left-right (azimute) and up-down (altitude) glider which controls the direction where you are looking.
+                </p>
+
+                <p>
+				The website allows you to view 500 of the brightest stars as well as the planets, the Moon and the Sun.
+				You can hover over any of those objects to see more related information. There is also a search function
+				which allows you to easily find and locate any celestial object.
+                </p>
+
+
+				<h2 class="mt-3">behind the scene</h2>
+
+				<p>
+				All celestial objects have a corresponding coordinates expressed by their right ascension and declination.
+				The live position of those celestial objects are first computed by adding the shift due to the Earth’s rotation,
+				which can be calculated using the sidereal time. Then those new positions are shifted again depending on
+				the longitude and the latitude of the site of observation on Earth. Finally, the positions of the celestial objets
+				are shifted once more to render the final sky view depending on the direction of the users’s view.
+                </p>
+
+                <p>
+				The data of the stars are from the <a href="https://github.com/astronexus/HYG-Database">HYG database</a>.
+                </p>
+
+				<p>
+				The data of the current position of the Sun, the Moon and the planets are found from
+				<a href="https://theskylive.com/planets">The Sky live</a> website.
+                </p>
+
+				<p>
+				The current sidereal time is found from
+				<a href="https://www.heavens-above.com/whattime.aspx">The Heavens above</a> website.
+                </p>
+
+				<p>
+				The data of the cities and their coordinates are found from
+				<a href="https://simplemaps.com/data/world-cities">Simple Maps</a> website.
+                </p>
+
+            </div>
+            <div class="col-1 col-lg-2"></div>
+        </div>
+    </section>
+
+    <footer class="pe-4 py-3">
+        Nightsky-500-stars Copyright &copy; <span id="current_year"></span>
+    </footer>
+</div>
+
+
+<div id="hidden">
+
+</div>
+
+{% endblock %}
+
+
+
+{% block script %}
+<script src="../static/scripts/geolocation.js"></script>
+<script src="../static/scripts/cities.js"></script>
+<script src="../static/scripts/map_inputs.js"></script>
+<script src="../static/scripts/animation.js"></script>
+<script>
+    function accept_coordinates(longitude, latitude) {
+        window.location.href = "{{url_for('starmap')}}?longitude=" + keepNbDecimals(longitude, 2)
+                             + "&latitude=" + keepNbDecimals(latitude, 2);
+    }
+
+    // enlever le style qui cache les contenants des erreurs
+    // (qui servent à masquer leur affichage non désiré au moment bref du chargement)
+    $(".error_container_initial_hide").removeClass("error_container_initial_hide");
+
+    // vider les champs
+    g("input_city").value = "";
+    g("input_longitude").value = "";
+    g("input_latitude").value = "";
+
+    // Animation d'apparition pour la section du bas
+    var anim_displayed_visible = false;
+    g("desc_section").style.opacity = 0;
+    document.addEventListener("scroll", () => {
+        var target_el = g("desc_section");
+        if(!anim_displayed_visible){
+            if(in_screen(target_el)){
+                anim_displayed_visible = true;
+                shadeIn(target_el, 5000);
+            }
+        }else{
+            if(!in_screen(target_el)){
+                anim_displayed_visible = false;
+                target_el.style.opacity = 0;
+            }
+        }
+    });
+
+    // L'année courante dans le footer
+    var d = new Date();
+    g("current_year").innerHTML = d.getFullYear();
+
+    // --- --- --- Utiliser la géolocalisation --- --- ---
+
+    g("button_geolocation").addEventListener("click", () => {
+        use_geolocation();
+    });
+
+    var element_error_geolocation = g("error_geolocation");
+    element_error_geolocation.remove();
+
+    function show_geolocation_error(error) {
+        g("container_error_geolocation").appendChild(element_error_geolocation);
+        element_error_geolocation.innerHTML = error;
+    }
+
+
+    // --- --- ---  Entrer manuellement les coordonnées --- --- ---
+
+    function use_coordinates() {
+        var longitude = g("input_longitude").value;
+        var longitude_valid = validate_input_longitude(longitude);
+
+        var latitude = g("input_latitude").value;
+        var latitude_valid = validate_input_latitude(latitude);
+
+        if (longitude !== "" && latitude !== "" &&
+            longitude == longitude_valid && latitude == latitude_valid) {
+            accept_coordinates(longitude_valid, latitude_valid);
+        } else {
+            show_coordinates_error();
+        }
+    }
+
+    var element_error_coordinates = g("error_coordinates");
+    element_error_coordinates.remove();
+
+    function show_coordinates_error() {
+        g("container_error_coordinates").appendChild(element_error_coordinates);
+    }
+
+    g("button_coordinates").addEventListener("click", () => {
+        use_coordinates();
+    });
+
+    // --- --- --- Entrer le nom de la ville --- --- ---
+
+    var element_error_city = g("error_city");
+    element_error_city.remove();
+
+    function show_city_error() {
+        g("container_error_city").appendChild(element_error_city);
+    }
+
+    var cities_list = [];
+    var cities_data = {};
+    ajax_get("{{url_for('get_cities')}}", {},
+        (i) => {
+
+            // Récupérer les données brutes des villes
+            var json_data = JSON.parse(i);
+
+            // Obtenir la liste des villes ainsi que l'objet associative nom --> coordonnées
+            for (var index in json_data.city_name) { // loop through les indices (donc 0 à ...)
+
+                // ajouter à la liste des villes
+                cities_list.push(json_data.city_name[index]);
+
+                // ajouter à l'objet associatif
+                cities_data[json_data.city_name[index]] = {
+                    longitude: json_data.lng[index],
+                    latitude: json_data.lat[index]
+                };
+            }
+        },
+        false);
+
+    autocomplete(document.getElementById("input_city"), cities_list);
+
+    g("button_city").addEventListener("click", () => {
+        var key = g("input_city").value;
+        if (cities_data.hasOwnProperty(key)) {
+            accept_coordinates(cities_data[key]["longitude"], cities_data[key]["latitude"]);
+        } else {
+            show_city_error();
+        }
+    });
+
+</script>
+{% endblock %}

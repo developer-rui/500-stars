@@ -1,0 +1,35 @@
+#section1{
+    background-image: url("../images/starry_sky.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+    color: white;
+}
+
+p{
+    font-size: 20px;
+}
+
+.error_container_initial_hide{
+    opacity: 0;   
+}
+
+#desc_section{
+    opacity: 0;
+}
+
+footer{
+    text-align: right;
+    font-size: 20px;
+    color: beige;
+    background-color: rgb(25, 39, 104); /*rgb(13, 25, 73);*/
+}
+
+#intro_texts{
+	text-align: justify;
+}
+/*.alert{
+    display: none;
+}
+/*label{
+    font-size: 5rem;
+}*/

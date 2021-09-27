@@ -1,0 +1,906 @@
+{% extends 'template.html' %}
+
+
+{% block style %}
+
+<!-- Custom CSS -->
+<link href="../static/stye/starmap.css" rel="stylesheet">
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-lg-5 col-xl-6 p-3 px-5" id="input_section">
+
+
+        <div class="row">
+            <div class="col">
+                <a class="btn btn-warning " href="{{url_for('mainpage')}}" role="button" id="back_button">Back</a>
+            </div>
+        </div>
+
+
+        <div class="row mt-2">
+            <div class="col">
+                <h4>Current starry sky seen from:</h4>
+            </div>
+        </div>
+
+        <div class="row mt-lg-3">
+            <div class="col-lg-5 col-xl-4 mb-2 mb-lg-1">
+                <div type="button" id="button_longitude_help" class="btn-primary button_toggle_modal button_toggle_inline" data-bs-toggle="modal" data-bs-target="#modal_longitude_help" href="#">
+
+                </div>
+                <label for="input_longitude" class="col-form-label">&nbsp;Longitude (&deg;):</label>
+            </div>
+            <div class="col-lg-7  col-xl-8">
+                <input type="number" id="input_longitude" class="form-control" step="any" min="-180" max="180" value="0">
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-lg-5 col-xl-4 mb-2 mb-lg-1">
+                <!--<a type="button" id="button_latitude_help" class="btn-primary button_toggle_modal button_toggle_inline" data-bs-toggle="modal" data-bs-target="#modal_latitude_help" href="#">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                </a>-->
+                <a type="button" id="button_latitude_help" class="btn-primary button_toggle_modal button_toggle_inline" data-bs-toggle="modal" data-bs-target="#modal_latitude_help" href="#">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                </a>
+                <label for="input_latitude" class="col-form-label">&nbsp;Latitude (&deg;): </label>
+            </div>
+            <div class="col-lg-7 col-xl-8">
+                <input type="number" id="input_latitude" class="form-control" step="any" min="-90" max="90" value="0">
+            </div>
+        </div>
+
+        <div class="row mt-4 mt-lg-3">
+            <div class="col">
+                <a type="button" id="button_azimuth_help" class="btn-primary button_toggle_modal button_toggle_inline" data-bs-toggle="modal" data-bs-target="#modal_azimuth_help" href="#">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                </a>
+                &nbsp;Azimuth: <span id="value_azimuth">0</span>&deg;
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col">
+                <input type="range" class="form-range" id="input_azimuth" min="0" max="360" value="0">
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col">
+                <a type="button" id="button_altitude_help" class="btn-primary button_toggle_modal button_toggle_inline" data-bs-toggle="modal" data-bs-target="#modal_altitude_help" href="#">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                </a>
+                &nbsp;Altitude: <span id="value_altitude">25</span>&deg;
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col">
+                <input type="range" class="form-range" id="input_altitude" min="25" max="90" value="25">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col" id="infopane_bigscreen"></div>
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-7 col-xl-6" id="starmap_section">
+
+        <div id="day_night_icon"></div>
+
+        <button type="button" id="button_map_help" class="btn-primary button_toggle_modal" data-bs-toggle="modal" data-bs-target="#modal_map_help">
+            <!--<i class="far fa-question-circle fa-2x"></i>-->
+        </button>
+
+        <div id="starmap"></div>
+
+
+        <div id="alt_container" class="alt_az_container">
+            <div id="alt_frame" class="alt_az_frame"></div>
+            <div id="alt_needle" class="alt_az_needle"></div>
+        </div>
+
+        <div id="az_container" class="alt_az_container">
+
+            <div id="az_frame" class="alt_az_frame"></div>
+
+            <div id="az_needle" class="alt_az_needle"></div>
+        </div>
+
+
+
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col px-4" id="infopane_smallscreen">
+
+        <form id="search_form" class="row p-3 pb-2">
+            <input type="text" class="form-control" id="search_input" placeholder="search for an celestial object!">
+            <input type="submit" class="btn btn-warning" id="search_button" value="Find" />
+        </form>
+
+        <table id="infotable" class="table table-striped mb-4 mb-lg-1">
+            <thead>
+                <tr>
+                    <th colspan="2" id="infotable_title" class="h3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Right ascension (&deg;)</th>
+                    <td id="infotable_rasc">-</td>
+                </tr>
+                <tr>
+                    <th>Declination (&deg;)</th>
+                    <td id="infotable_dec">-</td>
+                </tr>
+                <tr>
+                    <th>Constellation</th>
+                    <td id="infotable_con">-</td>
+                </tr>
+                <tr>
+                    <th>Distance to Earth (light-years)</th>
+                    <td id="infotable_dist">-</td>
+                </tr>
+                <tr>
+                    <th>Apparent magnitude</th>
+                    <td id="infotable_mag">-</td>
+                </tr>
+                <tr>
+                    <th>Intrinsic luminosity (solar multiple)</th>
+                    <td id="infotable_lum">-</td>
+                </tr>
+                <!--
+                <tr>
+                    <th>Spectral type</th>
+                    <td id="infotable_spect">-</td>
+                </tr>
+                -->
+            </tbody>
+        </table>
+
+
+        <table id="solar_infotable" class="table table-striped mb-4 mb-lg-1">
+            <thead>
+                <tr>
+                    <th colspan="2" id="solar_infotable_title" class="h3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Right ascension (&deg;)</th>
+                    <td id="solar_infotable_rasc">-</td>
+                </tr>
+                <tr>
+                    <th>Declination (&deg;)</th>
+                    <td id="solar_infotable_dec">-</td>
+                </tr>
+                <tr>
+                    <th>Apparent magnitude</th>
+                    <td id="solar_infotable_mag">-</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <img id="solar_infotable_img" src="" alt="">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+
+    </div>
+</div>
+
+<div class="modal fade" id="modal_map_help" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tips</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                You can hover over any celestial object in the sky view circle and its details will be displayed in the information pane. <br /><br />
+                Your sky view is customized to your geographic longitude and latitude and it offers an 50&deg; wide circular view in the direction of your azimuth and altitude. It is updated every minute to keep up with the rotation of the Earth in order to offer you a live view of the current sky. <br /><br />
+                The icon on the top-left side of the starmap will display a moon crescent if it is currently nighttime at your geographical location, and il will display a sun if it is currently daytime at your geographical location (so you won't actually be able to see the stars even though they are still illustrated here for reference).<br /><br />
+                The icons on the bottom-left and bottom-right side of the starmap give you an visual feedback of your current altitude and azimuth respectively.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modal_longitude_help" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Longitude</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Your longitude tells how far east or west is your current geographic location in respect to the Greenwich meridian. The value of the longitude is 0&deg; at the Greenwich meridian, and it spans from 0&deg; to -180&deg; if you are west to the Greenwich meridian, and from 0&deg; to 180&deg; if you are east to the Greenwich meridian.                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modal_latitude_help" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Latitude</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Your latitude tells how far north or south is your current geographic location in respect to the Earth's equator. The value of the latitude is 0&deg; at the equator, and it spans from 0&deg; to 90&deg; if you are in the Northern Hemisphere and from 0&deg; to -90&deg; if you are in the Southern Hemisphere.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modal_azimuth_help" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Azimuth</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Your azimuth is the angle of your view mesured in the east (clockwise) direction in respect to the North. Its value spans from 0&deg; to 360&deg;.<br /><br />
+                Simply put, increasing your azimuth will turn your view in the right (east) direction and decreasing it will turn your view in the left (west) direction.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modal_altitude_help" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Altitude</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Your altitude is the angle of the elevation of your view mesured in respect to the horizon. Its minimum value starts at 25&deg; because your field of view already has an half opening angle of 25&deg; which allows you to see stars as low as 0&deg; from the horizon; and its maximum value is 90&deg; which allows you to have a full view of the zenith.<br /><br />
+                Simply put, increasing your altitude will turn your view in the upward direction and decreasing it will turn your view in the downward direction.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+{% block script %}
+
+
+
+<script src="../static/scripts/geometry.js"></script>
+<script src="../static/scripts/info_display.js"></script>
+<script src="../static/scripts/map_inputs.js"></script>
+<script src="../static/scripts/find.js"></script>
+<script src="../static/scripts/moon.js"></script>
+
+<script>
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    //                  --- --- --- Récupération des données au serveur --- --- ---  
+
+
+    // Récupérer les données des étoiles et 
+    // calculer les positions de référence des étoiles (theta 0, phi 0, 0h sideral)
+    var stars_data = null;
+    var initial_stars_pos = {};
+    ajax_get("{{url_for('get_stars')}}", {},
+        (i) => {
+
+            // Récupérer les données brutes des étoiles
+            // stars_data contient les données (différentes propriétés) sur chaque étoile
+            // pour accéder à une propriété d'une étoile:
+            //      -->  stars_data.nomPropriete[i]
+            //  où i va de 1 à 498 pour les étoiles de notre dataset utilisé (0 est le soleil)
+            stars_data = JSON.parse(i);
+
+            // Calculer la position initiale des étoiles                
+            for (var i in stars_data.id) { // loop through les indices (donc 0 à 498)
+                initial_stars_pos[i] = {
+                    index: i,
+                    theta: stars_data.rasc[i],
+                    phi: stars_data.dec[i]
+                };
+            }
+        },
+        false);
+
+
+    //
+    var solars_data = null;
+    var initial_solars_pos = {}
+    ajax_get("{{url_for('solar_system')}}", {},
+        (i) => {
+
+            // Récupérer les données brutes des planètes, de la Lune et du Soleil
+            // solars_data contient les données (différentes propriétés) sur chaque objet céleste
+            // pour accéder à une propriété d'un objet céleste:
+            //      -->  solars_data["nom_objet"]["nom_propriete"]            
+            solars_data = JSON.parse(i);            
+
+            // obtenir l'array des positions initiales               
+            for (var i in solars_data) { // loop through les indices (textuels)
+
+                initial_solars_pos[i] = {
+                    index: i,
+                    theta: solars_data[i]["rasc"],
+                    phi: solars_data[i]["dec"]
+                };
+            }
+            
+        },
+        false);
+
+
+
+    // Récupérer le décalage de l'angle dû à la rotation de la terre,
+    // avec la longitude de Greenwich comme point de référence
+    var now_greenwich_theta = 0;
+
+    function get_now_greenwich_theta() {
+
+        // récupérer l'heure sidérale de Greenwich (hh:mm:ss)
+        var gst = "";
+        ajax_get("{{url_for('get_gst')}}", {}, (i) => {
+            gst = i;
+        }, false);
+
+        // convertir en angle (0 à 360)
+        gst = gst.split(":");
+        now_greenwich_theta = (parseInt(gst[0]) / 24 * 360 + parseInt(gst[1]) / 24 / 60 * 360) % 360;
+    }
+
+    get_now_greenwich_theta();
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////    
+    //            --- --- --- Fonction des calculs des positions courantes --- --- ---    
+
+    // obtenir la position actuelle des étoiles: c'est-à-dire
+    // pour l'heure sidérale actuelle et pour l'emplacement géographique précisé par les coordonnées
+    // quand on pointe vers l'azimuth 0 à l'altitude 0
+    // *attention, la longitude est dans les ranges [0, 360] et la latitude est dans [-90, 90]
+    var current_stars_pos = {};
+
+    function get_current_stars_pos(longitude, latitude) {
+
+        // effectuer la rotation horizontale
+        var shifted_h = rotate_horizontal_all(initial_stars_pos, (now_greenwich_theta + longitude) * (-1));
+
+        // effectuer la rotation verticale et stocker le résulta final dans current_stars_pos
+        current_stars_pos = rotate_vertical_all(shifted_h, (latitude + 90) * (-1));
+    }
+
+    // Obtenir la position des étoiles après les changements de l'azimuth et de l'altitude par l'utilisateur
+    var live_stars_pos = {};
+
+    function get_live_stars_pos(azimuth, altitude) {
+
+        // effectuer la rotation horizontale
+        var shifted_h = rotate_horizontal_all(current_stars_pos, azimuth * (-1));
+
+        // effectuer la rotation verticale et stocker le résulta final dans live_stars_pos
+        live_stars_pos = rotate_vertical_all(shifted_h, altitude);
+    }
+
+
+
+    ////////// Les mêmes acitons ci-haut pour les planètes, Lune et Soleil
+
+
+
+    var current_solars_pos = {};
+
+    function get_current_solars_pos(longitude, latitude) { //alert(initial_solars_pos["The Sun"]["phi"]);
+
+        // effectuer la rotation horizontale
+        var shifted_h = rotate_horizontal_all(initial_solars_pos, (now_greenwich_theta + longitude) * (-1));
+
+        // effectuer la rotation verticale et stocker le résulta final dans current_solars_pos
+        current_solars_pos = rotate_vertical_all(shifted_h, (latitude + 90) * (-1));
+    }
+
+
+    var live_solars_pos = {};
+
+    function get_live_solars_pos(azimuth, altitude) {
+
+        // effectuer la rotation horizontale
+        var shifted_h = rotate_horizontal_all(current_solars_pos, azimuth * (-1));
+
+        // effectuer la rotation verticale et stocker le résulta final dans live_solars_pos
+        live_solars_pos = rotate_vertical_all(shifted_h, altitude);
+    }
+
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////    
+    //                  --- --- --- Fonction de dessin des objets célestes --- --- ---    
+
+
+    ///////// Calculs des dimensions
+    function get_starmap_section_width() {
+        return parseInt($("#starmap_section").css("width").split("p")[0]);
+    }
+
+    function get_starmap_size() {
+        // retourne le minimum entre la largeur de la section de starmap et la hauteur de l'écran (* 90%)
+        return (get_starmap_section_width() > window.innerHeight) ?
+            window.innerHeight * 0.9 :
+            get_starmap_section_width() * 0.9;
+    }
+
+    ///////// Constantes
+
+    var viewingfield_half_angle = 25;
+
+    var displayed_stars = [];
+    var displayed_solars = [];
+
+
+
+    ///////// Étoiles    
+
+    function drawStar(star_index, left, top, parentElement) {
+
+        //convertur sur l'échelle [0, 5] pour faciliter les calculs
+        var scale = stars_data.mag[star_index] * (-1) + 4;
+        if (scale < 0) {
+            scale = 0;
+        }
+        if (scale > 5) {
+            scale = 5;
+        }
+
+        //la taille du point à dessiner
+        var size = Math.ceil(scale) + 2;
+
+        //la brilliance du point à dessiner
+        var brilliance = 120 + scale / 5 * (255 - 120);
+
+
+        //Créer le conteneur de l'étoile
+        var container = document.createElement('div');
+        container.className = "star_container"; // block, absolute, bradius 50%
+        container.style.top = (top - 3) + "px";
+        container.style.left = (left - 3) + "px";
+        parentElement.appendChild(container);
+
+        //Quand on survole avec la souris, affiche les informations
+        container.addEventListener("mouseover", () => {
+            //current_infodisplay_star_index = star_index;
+            displayStarInfo(star_index);
+        });
+
+        // mémoriser ça dans la liste des étoiles dessinées
+        displayed_stars.push(container);
+
+        //dessiner l'étoile dans le conteneur
+        var star = document.createElement('div');
+        star.className = "star"; // block, absolute, bradius 50%
+        star.style.width = size + "px";
+        star.style.height = size + "px";
+        star.style.backgroundColor = "rgb(" + brilliance + "," + brilliance + "," + brilliance + ")";
+        star.style.top = ((7 - size) / 2) + "px";
+        star.style.left = ((7 - size) / 2) + "px";
+        container.appendChild(star);
+    }
+
+    function drawStars(stars) {
+
+        //supprimer les anciennes étoiles
+        for (var i = 0; i < displayed_stars.length; i++) {
+            displayed_stars[i].remove();
+        }
+        displayed_stars = [];
+
+        //Récupérer la taille du canvas
+        var starmap_size = get_starmap_size();
+
+        //dessiner toutes les étoiles éligibles (situées dans la zone visible)
+        for (var i = 1; i <= 498; i++) { // on utilise ça pour éviter le [0] qui est le soleil
+            //for (var i in stars_data.id) {
+            var starXYZ = spheric_to_cartesian(stars[i]);
+            if (starXYZ.z > cos(viewingfield_half_angle)) {
+                var left = (starXYZ.x + sin(viewingfield_half_angle)) / (sin(viewingfield_half_angle) * 2) *
+                    starmap_size;
+                var top = (starXYZ.y + sin(viewingfield_half_angle)) / (sin(viewingfield_half_angle) * 2) *
+                    starmap_size;
+                drawStar(starXYZ.index, left, top, g("starmap"));
+            }
+        }
+    }
+
+
+
+    ///////// planètes, Soleil et Lune
+
+    function drawPlanet(index, left, top, parentElement) {
+
+        //convertur sur l'échelle [0, 6] pour faciliter les calculs
+        var scale = solars_data[index]["mag"] * (-1) + 2;
+        if (scale < 0) {
+            scale = 0;
+        }
+        if (scale > 6) {
+            scale = 6;
+        }
+
+        //la taille du point à dessiner
+        var size = Math.ceil(scale * 2 / 3) + 4;
+
+
+        //Créer le conteneur 
+        var container = document.createElement('div');
+        container.className = "planet_container"; // block, absolute, bradius 50%
+        container.style.top = (top - 4) + "px";
+        container.style.left = (left - 4) + "px";
+        parentElement.appendChild(container);
+
+        //Quand on survole avec la souris, affiche les informations
+        container.addEventListener("mouseover", () => {
+            displaySolarInfo(index);
+            //alert(index);
+        });
+
+        // mémoriser ça dans la liste des étoiles dessinées
+        displayed_solars.push(container);
+
+        //dessiner l'étoile dans le conteneur
+        var planet = document.createElement('div');
+        planet.className = "planet"; // block, absolute, bradius 50%
+        planet.style.width = size + "px";
+        planet.style.height = size + "px";
+        planet.style.backgroundColor = "rgb(255,255,128)";
+        planet.style.top = ((9 - size) / 2) + "px";
+        planet.style.left = ((9 - size) / 2) + "px";
+        container.appendChild(planet);
+    }
+
+    function drawSun(index, left, top, parentElement) {
+
+        //la taille du point à dessiner
+        var size = get_starmap_size() * 0.06;
+
+        //Créer le soleil
+        var sun = document.createElement('div');
+
+        sun.style.display = "block";
+        sun.style.position = "absolute";
+        sun.style.top = (top - size / 2) + "px";
+        sun.style.left = (left - size / 2) + "px";
+        sun.style.width = size + "px";
+        sun.style.height = size + "px";
+        sun.style.backgroundColor = "rgb(255, 117, 10)";
+        sun.style.borderRadius = "50%";
+
+        parentElement.appendChild(sun);
+
+        //Quand on survole avec la souris, affiche les informations
+        sun.addEventListener("mouseover", () => {
+            displaySolarInfo(index);
+        });
+
+        // mémoriser ça dans la liste des étoiles dessinées
+        displayed_solars.push(sun);
+    }
+
+    function drawMoon(index, left, top, parentElement) {
+
+        //la taille du point à dessiner
+        var size = get_starmap_size() * 0.06;
+
+        //Créer la lune
+        var moon = document.createElement('div');
+
+        moon.style.display = "block";
+        moon.style.position = "absolute";
+        moon.style.top = (top - size / 2) + "px";
+        moon.style.left = (left - size / 2) + "px";
+        moon.style.width = size + "px";
+        moon.style.height = size + "px";
+		moon.style.borderRadius = "50%";
+		
+        moon.style.backgroundColor = "rgb(0, 0, 0)";
+		moon.style.border = "1px grey solid";
+		
+		var solar_xyz = get_solar_xyz_to_moon();
+		var mooncrescent_size = get_mooncrescent_size(solar_xyz["z"]);
+		var mooncrescent_orientation = get_moon_orientation(solar_xyz["x"], solar_xyz["y"]);
+		
+        /*alert(live_solars_pos["The Sun"]["theta"]+"___"+live_solars_pos["The Sun"]["phi"]);
+        alert(live_solars_pos["The Moon"]["theta"]+"___"+live_solars_pos["The Moon"]["phi"]);
+        var solar_angle = cartesian_to_spheric(solar_xyz);
+        alert(solar_angle["theta"]+"___"+solar_angle["phi"]);
+
+        /*var sun_xyz = spheric_to_cartesian(live_solars_pos["The Sun"]);
+        var moon_xyz = spheric_to_cartesian(live_solars_pos["The Moon"]);
+        alert(sun_xyz["x"]+"|"+sun_xyz["y"]+"|"+sun_xyz["z"]);
+        alert(moon_xyz["x"]+"|"+moon_xyz["y"]+"|"+moon_xyz["z"]);
+        alert(solar_xyz["x"]+"|"+solar_xyz["y"]+"|"+solar_xyz["z"]);*/
+
+        //alert(solar_xyz["x"] + " -- " + solar_xyz["y"] + " -- " + solar_xyz["z"] + " -- " + mooncrescent_size  + " -- " + mooncrescent_orientation);
+
+		moon.style.backgroundImage = 'url("../static/images/mc_' + mooncrescent_size + '.jpg")';
+		moon.style.backgroundSize = 'cover';
+        moon.style.transform = "rotate(" + mooncrescent_orientation + "deg)";
+		
+
+        parentElement.appendChild(moon);
+
+        //Quand on survole avec la souris, affiche les informations
+        moon.addEventListener("mouseover", () => {
+            displaySolarInfo(index);
+        });
+
+        // mémoriser ça dans la liste des étoiles dessinées
+        displayed_solars.push(moon);
+
+    }
+	
+	
+
+    function drawSolars(objs) {
+
+        //supprimer les ancienn éléments
+        for (var i = 0; i < displayed_solars.length; i++) {
+            displayed_solars[i].remove();
+        }
+        displayed_solars = [];
+
+        //Récupérer la taille du canvas
+        var starmap_size = get_starmap_size();
+
+        //dessiner toutes les éléments éligibles ( = situées dans la zone visible ET de magnitude visible)
+        for (var i in objs) { // i: nom de l'élément (The Sun, Jupiter...)
+
+
+            // planète visible
+            if (solars_data[i]["mag"] < 2 && solars_data[i]["mag"] > -5) {
+                var xyz = spheric_to_cartesian(objs[i]);
+
+                if (xyz.z > cos(viewingfield_half_angle)) {
+                    var left = (xyz.x + sin(viewingfield_half_angle)) / (sin(viewingfield_half_angle) * 2) *
+                        starmap_size;
+                    var top = (xyz.y + sin(viewingfield_half_angle)) / (sin(viewingfield_half_angle) * 2) *
+                        starmap_size;
+
+                    drawPlanet(xyz.index, left, top, g("starmap"));
+                }
+
+                // Soleil                                                           
+            } else if (i == "The Sun") {
+                var xyz = spheric_to_cartesian(objs[i]);
+
+                if (xyz.z > cos(viewingfield_half_angle)) {
+                    var left = (xyz.x + sin(viewingfield_half_angle)) / (sin(viewingfield_half_angle) * 2) *
+                        starmap_size;
+                    var top = (xyz.y + sin(viewingfield_half_angle)) / (sin(viewingfield_half_angle) * 2) *
+                        starmap_size;
+
+                    drawSun(xyz.index, left, top, g("starmap"));
+                }
+
+                // Lune
+            } else if (i == "The Moon") {
+                var xyz = spheric_to_cartesian(objs[i]);
+
+                if (xyz.z > cos(viewingfield_half_angle)) {
+                    var left = (xyz.x + sin(viewingfield_half_angle)) / (sin(viewingfield_half_angle) * 2) *
+                        starmap_size;
+                    var top = (xyz.y + sin(viewingfield_half_angle)) / (sin(viewingfield_half_angle) * 2) *
+                        starmap_size;
+
+                    drawMoon(xyz.index, left, top, g("starmap"));
+                }
+            }
+
+        }
+    }
+
+
+
+    ///////// général
+
+    var update_drawing_in_progress = true;
+
+    function drawSkyMap() {
+        // récupérer la taille du canvas
+        var starmap_size = get_starmap_size();
+
+        // Mettre en style le canvas en fonction de la taille
+        if (window.innerWidth >= 992) {
+            var marginTop = ((window.innerHeight - starmap_size) / 2) + "px"
+        } else {
+            var marginTop = "3%";
+        }
+
+        $("#starmap").css({
+            "width": starmap_size + "px",
+            "height": starmap_size + "px",
+            "margin-top": marginTop
+        });
+
+        // indiquer qu'on a fini de dessiner (mécanisme d'évitement de surcharge)
+        update_drawing_in_progress = false;
+
+
+        // dessiner les étoiles
+        drawStars(live_stars_pos);
+
+        // dessiner les planètes, Lune et Soleil
+        drawSolars(live_solars_pos);
+
+        
+        //////////////////////////////////////////////////////////////////////////////
+        
+        // positionner les icones pour l'altitude et l'azimuth
+        var icon_size = 60;
+        if (window.innerWidth > 1400) {
+            icon_size = 125;
+        } else if (window.innerWidth > 1200 && window.innerWidth <= 1400) {
+            icon_size = 100;
+        } else if (window.innerWidth > 992 && window.innerWidth <= 1200) {
+            icon_size = 90;
+        } else if (window.innerWidth > 768 && window.innerWidth <= 992) {
+            icon_size = 115;
+        } else if (window.innerWidth > 576 && window.innerWidth <= 768) {
+            icon_size = 80;
+        }
+
+        var icontop = ((window.innerHeight - starmap_size) / 2) + starmap_size - icon_size;
+        $(".alt_az_container").css({
+            "width": icon_size + "px",
+            "height": icon_size + "px",
+            "top": icontop + "px"
+        });
+        
+        if (window.innerWidth < 992) {
+            $(".alt_az_container").css({
+                "top": (starmap_size - icon_size + 5) + "px"                
+            });
+        }
+    }
+
+    
+    
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////        
+    //                  --- --- --- Évènements en réponse aux modifications des inputs --- --- ---        
+
+
+    // redessiner si la taille de la fenêtre change
+    window.addEventListener("resize", () => {
+        if (!update_drawing_in_progress) {
+            update_drawing_in_progress = true;
+            setTimeout(drawSkyMap, 200);
+        }
+    });
+
+    // clic pour la recherche
+    g("search_form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        find_action();       
+    });
+    g("search_input").value = "";
+
+
+    // Fonction pour mettre à jour la vue actuelle:
+    // Si changeLocation = true alors redessine en tenant compte de la nouvelle longitude/latitude,
+    // sinon redessine seulement avec les nouveaux azimuth et altitude
+    function updateSkyView(changeLocation = false) {
+        if (changeLocation) {
+            var input_long = get_input_longitude();
+            input_long = input_long < 0 ? input_long + 360 : input_long;
+            var input_lat = get_input_latitude();
+
+            get_current_stars_pos(input_long, input_lat);
+            get_current_solars_pos(input_long, input_lat);
+
+            indicate_day_or_night();
+        }
+
+        var input_az = get_input_azimuth();
+        var input_alt = get_input_altitude();
+
+        get_live_stars_pos(input_az, input_alt);
+        get_live_solars_pos(input_az, input_alt);
+
+        drawSkyMap();
+
+        update_alt_az_icons(input_alt, input_az);
+    }
+    // Initialement on l'appelle pour afficher la première vue
+    updateSkyView(true);
+
+
+    // Mettre à jour à chaque minute
+    setInterval(() => {
+        get_now_greenwich_theta();
+        updateSkyView(true);
+    }, 60000);
+
+
+
+    // Changement de l'azimuth ou de l'altitude
+    g("input_azimuth").addEventListener("change", (e) => {
+        g("value_azimuth").innerHTML = e.target.value;
+        updateSkyView();
+    });
+
+    g("input_altitude").addEventListener("change", (e) => {
+        g("value_altitude").innerHTML = e.target.value;
+        updateSkyView();
+    });
+
+
+
+    // Changement de la longitude ou de la latitude   
+    g("input_longitude").addEventListener("change", (e) => {
+        updateSkyView(true);
+    });
+
+    g("input_latitude").addEventListener("change", (e) => {
+        updateSkyView(true);
+    });
+
+
+    // icône pour indiquer si c'est la nuit ou le jour
+    function indicate_day_or_night() {
+        if (is_visible(current_solars_pos["The Sun"])) { //alert("day");
+            g("day_night_icon").style.backgroundImage = "url(\"../static/images/day.png\")";
+        } else { //alert("night");
+            g("day_night_icon").style.backgroundImage = "url(\"../static/images/night.png\")";
+        }
+    }
+    indicate_day_or_night();
+
+    // les petites icônes animées pour l'altitude et l'azimuth
+    function update_alt_az_icons(alt, az) {
+        alt = (alt - 25); /// 65 * 90;
+        g("alt_needle").style.transform = "rotate(-" + alt + "deg)";
+        g("az_needle").style.transform = "rotate(" + az + "deg)";
+    }
+
+</script>
+
+{% endblock %}
